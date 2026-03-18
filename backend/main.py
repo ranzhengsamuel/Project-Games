@@ -1,22 +1,21 @@
 "# Week 4 - FastAPI backend goes here" 
-from flask import Flask, jsonify
+from fastapi import FastAPI
+from pydantic import BaseModel
 
-import datetime
+app = FastAPI()
 
-app = Flask(__name__)
+class Note(BaseModel):
+    title: str
+    content: str
+    published: bool = False
 
-LOG_FILE = "/data/requests.log"
+notes = []
 
-@app.get("/health")
+@app.get("/notes")
+def get_notes():
+    return notes
 
-def health():
-
-    with open(LOG_FILE, "a") as f:
-
-        f.write(f"{datetime.datetime.now()} — health check\n")
-
-    return jsonify({"status": "ok"})
-
-if __name__ == "__main__":
-
-    app.run(host="0.0.0.0", port=8000)
+@app.post("/notes", status_code=201)
+def create_note(note: Note):
+    notes.append(note)
+    return note
